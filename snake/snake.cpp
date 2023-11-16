@@ -9,13 +9,13 @@
 #include <windows.h>
 #include <conio.h>
 
-const int fieldWidth = 40;
-const int fieldHeight = 20;
+const int FIELD_WIDTH = 40;
+const int FIELD_HEIGHT = 20;
 
-const wchar_t snakeSymbol = L'█';
-const wchar_t appleSymbol = L'◈';
-const wchar_t fieldSymbol = L'░';
-const wchar_t boundarySymbol = L'▓';
+const wchar_t SNAKE_SYMBOL = L'█';
+const wchar_t APPLE_SYMBOL = L'◈';
+const wchar_t FIELD_SYMBOL = L' ';
+const wchar_t BOUNDARY_SYMBOL = L'▓';
 
 enum Direction {
     STOP = 0,
@@ -39,50 +39,54 @@ struct Field {
     std::vector<std::vector<wchar_t>> layout;
 };
 
-Field generateField() {
+Field GenerateField() {
     Field field;
-    field.layout = std::vector<std::vector<wchar_t>>(fieldHeight, std::vector<wchar_t>(fieldWidth, fieldSymbol));
+    field.layout = std::vector<std::vector<wchar_t>>(FIELD_HEIGHT, std::vector<wchar_t>(FIELD_WIDTH, FIELD_SYMBOL));
 
-    for (int y = 0; y < fieldHeight; ++y) {
-        field.layout[y][0] = boundarySymbol;
-        field.layout[y][fieldWidth - 1] = boundarySymbol;
+    for (int y = 0; y < FIELD_HEIGHT; ++y) {
+        field.layout[y][0] = BOUNDARY_SYMBOL;
+        field.layout[y][FIELD_WIDTH - 1] = BOUNDARY_SYMBOL;
     }
-    for (int x = 0; x < fieldWidth; ++x) {
-        field.layout[0][x] = boundarySymbol;
-        field.layout[fieldHeight - 1][x] = boundarySymbol;
+    for (int x = 0; x < FIELD_WIDTH; ++x) {
+        field.layout[0][x] = BOUNDARY_SYMBOL;
+        field.layout[FIELD_HEIGHT - 1][x] = BOUNDARY_SYMBOL;
     }
 
     return field;
 }
 
-Snake generateSnake(const Field& field) {
+Snake GenerateSnake(const Field& field) {
     Snake snake;
     snake.direction = STOP;
-    snake.body.push_back({ fieldWidth / 2, fieldHeight / 2 });
-    snake.body.push_back({ fieldWidth / 2 - 1, fieldHeight / 2 });
+    snake.body.push_back({ FIELD_WIDTH / 2, FIELD_HEIGHT / 2 });
+    snake.body.push_back({ FIELD_WIDTH / 2 - 1, FIELD_HEIGHT / 2 });
 
     return snake;
 }
 
-Apple generateApple(const Field& field) {
+Apple GenerateApple(const Field& field) {
     Apple apple;
     do {
-        apple.x = std::rand() % (fieldWidth - 2) + 1;
-        apple.y = std::rand() % (fieldHeight - 2) + 1;
-    } while (field.layout[apple.y][apple.x] != fieldSymbol);
+        apple.x = std::rand() % (FIELD_WIDTH - 2) + 1;
+        apple.y = std::rand() % (FIELD_HEIGHT - 2) + 1;
+    } while (field.layout[apple.y][apple.x] != FIELD_SYMBOL);
     return apple;
 }
 
-void drawField(const Field& field) {
-    for (int y = 0; y < fieldHeight; ++y) {
-        for (int x = 0; x < fieldWidth; ++x) {
+void DrawField(const Field& field) {
+    COORD position;
+    position.X = 0;
+    position.Y = 0;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
+
+    for (int y = 0; y < FIELD_HEIGHT; ++y) {
+        for (int x = 0; x < FIELD_WIDTH; ++x) {
             std::wcout << field.layout[y][x];
         }
         std::wcout << std::endl;
     }
 }
-
-void updateSnakePosition(Snake& snake, Apple& apple, int& score, const Field& field) {
+void UpdateSnakePosition(Snake& snake, Apple& apple, int& score, const Field& field) {
     if (snake.direction == STOP) {
         snake.direction = RIGHT;
     }
@@ -105,15 +109,15 @@ void updateSnakePosition(Snake& snake, Apple& apple, int& score, const Field& fi
         break;
     }
 
-    if (newHead.first == 0 || newHead.first == fieldWidth - 1 ||
-        newHead.second == 0 || newHead.second == fieldHeight - 1 ||
-        field.layout[newHead.second][newHead.first] == snakeSymbol) {
+    if (newHead.first == 0 || newHead.first == FIELD_WIDTH - 1 ||
+        newHead.second == 0 || newHead.second == FIELD_HEIGHT - 1 ||
+        field.layout[newHead.second][newHead.first] == SNAKE_SYMBOL) {
         std::wcout << L"Game Over!" << std::endl;
         exit(0);
     }
 
     if (newHead.first == apple.x && newHead.second == apple.y) {
-        Apple newApple = generateApple(field);
+        Apple newApple = GenerateApple(field);
         apple = newApple;
         score++;
     }
@@ -128,7 +132,7 @@ void updateSnakePosition(Snake& snake, Apple& apple, int& score, const Field& fi
         snake.body.pop_back();
     }
 
-    if (score == (fieldWidth - 2) * (fieldHeight - 2)) {
+    if (score == (FIELD_WIDTH - 2) * (FIELD_HEIGHT - 2)) {
         std::wcout << L"You Win!" << std::endl;
         exit(0);
     }
@@ -142,13 +146,13 @@ int main() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
 
-    Field field = generateField();
-    Snake snake = generateSnake(field);
-    Apple apple = generateApple(field);
+    Field field = GenerateField();
+    Snake snake = GenerateSnake(field);
+    Apple apple = GenerateApple(field);
 
     int score = 0;
 
-    field.layout[apple.y][apple.x] = appleSymbol;
+    field.layout[apple.y][apple.x] = APPLE_SYMBOL;
 
     while (true) {
         if (_kbhit()) {
@@ -172,26 +176,26 @@ int main() {
             }
         }
 
-        updateSnakePosition(snake, apple, score, field);
+        UpdateSnakePosition(snake, apple, score, field);
 
-        if (snake.body.front().first == 0 || snake.body.front().first == fieldWidth - 1 ||
-            snake.body.front().second == 0 || snake.body.front().second == fieldHeight - 1) {
+        if (snake.body.front().first == 0 || snake.body.front().first == FIELD_WIDTH - 1 ||
+            snake.body.front().second == 0 || snake.body.front().second == FIELD_HEIGHT - 1) {
             break;
         }
 
-        for (int y = 1; y < fieldHeight - 1; ++y) {
-            for (int x = 1; x < fieldWidth - 1; ++x) {
-                field.layout[y][x] = fieldSymbol;
+        for (int y = 1; y < FIELD_HEIGHT - 1; ++y) {
+            for (int x = 1; x < FIELD_WIDTH - 1; ++x) {
+                field.layout[y][x] = FIELD_SYMBOL;
             }
         }
 
         for (const auto& segment : snake.body) {
-            field.layout[segment.second][segment.first] = snakeSymbol;
+            field.layout[segment.second][segment.first] = SNAKE_SYMBOL;
         }
 
-        field.layout[apple.y][apple.x] = appleSymbol;
+        field.layout[apple.y][apple.x] = APPLE_SYMBOL;
         system("cls");
-        drawField(field);
+        DrawField(field);
         std::wcout << L"Score: " << score << std::endl;
         Sleep(100);
     }
