@@ -15,9 +15,9 @@ enum Direction {
 
 class Snake {
 public:
+    void Generate(Snake& snake, const Field& field);
     void UpdatePosition(Snake& snake, Apple& apple, int& score, const Field& field);
     void UpdateState(Snake& snake, Field& field);
-    Snake Generate(const Field& field);
 
     std::deque<std::pair<int, int>> body;
     Direction direction;

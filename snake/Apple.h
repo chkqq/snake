@@ -7,7 +7,7 @@
 class Apple
 { 
 public:
-	Apple Generate(const Field& field);
+	void Generate(Apple& apple, const Field& field);
 	void UpdateState(Apple& apple, Field& field);
 
 	int x;

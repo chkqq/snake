@@ -23,8 +23,8 @@ int main() {
     Apple apple;
 
     field.Generate(field);
-    snake.Generate(field);
-    apple.Generate(field);
+    snake.Generate(snake, field);
+    apple.Generate(apple, field);
 
     int score = 0;
 

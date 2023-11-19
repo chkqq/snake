@@ -36,9 +36,7 @@ void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score, const Field&
     }
 
     if (newHead.first == apple.x && newHead.second == apple.y) {
-        Apple newApple;
-        newApple.Generate(field);
-        apple = newApple;
+        apple.Generate(apple, field);
         score++;
     }
     else {
@@ -66,11 +64,9 @@ void Snake:: UpdateState(Snake& snake, Field& field) {
     }
 }
 
-Snake Snake:: Generate(const Field& field) {
-    Snake snake;
+void Snake:: Generate(Snake& snake, const Field& field) {
     snake.direction = STOP;
     snake.body.push_back({ FIELD_WIDTH / 2, FIELD_HEIGHT / 2 });
     snake.body.push_back({ FIELD_WIDTH / 2 - 1, FIELD_HEIGHT / 2 });
 
-    return snake;
 }
