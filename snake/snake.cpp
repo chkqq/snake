@@ -1,12 +1,13 @@
 ﻿#include <iostream>
 #include <conio.h>
+#include <Windows.h>
 #include "Snake.h"
 #include "Field.h"
 #include "Apple.h"
 
 const wchar_t SNAKE_SYMBOL = L'█';
 
-void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,const Field& field) {
+void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,bool& gameRunning, const Field& field) {
     if (snake.direction == STOP) {
         snake.direction = RIGHT;
     }
@@ -33,6 +34,7 @@ void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,const Field& 
         newHead.second == 0 || newHead.second == FIELD_HEIGHT - 1 ||
         field.layout[newHead.second][newHead.first] == SNAKE_SYMBOL) {
         std::wcout << L"Game Over!" << std::endl;
+        gameRunning = false;
     }
 
     if (newHead.first == apple.x && newHead.second == apple.y) {
@@ -42,7 +44,7 @@ void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,const Field& 
     else {
         for (auto it = snake.body.begin(); it != snake.body.end(); ++it) {
             if (newHead.first == it->first && newHead.second == it->second) {
-                std::wcout << L"Game Over!" << std::endl;
+                gameRunning = false;
             }
         }
 
@@ -51,8 +53,14 @@ void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,const Field& 
 
     if (score == (FIELD_WIDTH - 2) * (FIELD_HEIGHT - 2)) {
         std::wcout << L"You Win!" << std::endl;
+        gameRunning = false;
     }
     snake.body.push_front(newHead);
+
+    if (!gameRunning) {
+        std::wcout << L"Press any button to continue" << std::endl;
+        _getch();
+    }
 }
 
 void Snake:: UpdateState(Snake& snake, Field& field) {

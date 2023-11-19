@@ -12,7 +12,7 @@
 
 const int COMPLEXITY = 100;
 
-void SnakeGame() {
+void SnakeGame(bool& gameRunning) {
     while (true) {
         Field field;
         Snake snake;
@@ -25,7 +25,7 @@ void SnakeGame() {
         int score = 0;
 
         apple.UpdateState(apple, field);
-        while (true) {
+        while (gameRunning) {
             if (_kbhit()) {
                 switch (_getch()) {
                 case 'a':
@@ -47,37 +47,36 @@ void SnakeGame() {
                 case 'x':
                     return;
                 case 'r':
-                    SnakeGame();
+                    SnakeGame(gameRunning);
                 }
             }
 
-            snake.UpdatePosition(snake, apple, score, field);
+            snake.UpdatePosition(snake, apple, score, gameRunning, field);
 
-            if (snake.body.front().first == 0 || snake.body.front().first == FIELD_WIDTH - 1 ||
-                snake.body.front().second == 0 || snake.body.front().second == FIELD_HEIGHT - 1) {
-                std::wcout << L"Press 'x' to exit, 'r' to restart: ";
-
-                while (true) {
-                    if (_kbhit()) {
-                        switch (_getch()) {
-                        case 'x':
-                            return;
-                        case 'r':
-                            SnakeGame();
-                            return;
-                        }
-                    }
-                }
-            }
 
             field.UpdateState(field);
             snake.UpdateState(snake, field);
             apple.UpdateState(apple, field);
 
             system("cls");
-            field.DrawMap(field);
-            std::wcout << L"Score: " << score << std::endl;
+            if (gameRunning) {
+                field.DrawMap(field);
+                std::wcout << L"Score: " << score << std::endl;
+            }
             Sleep(COMPLEXITY);
+        }
+        std::wcout << L"Press 'x' to exit, 'r' to restart: ";
+        while (true) {
+            if (_kbhit()) {
+                switch (_getch()) {
+                case 'x':
+                    return;
+                case 'r':
+                    gameRunning = true;
+                    SnakeGame(gameRunning);
+                    return;
+                }
+            }
         }
     }
 }
@@ -90,8 +89,10 @@ int main() {
     std::wcout << L"Press 'x' for exit, press 'r' for restart" << std::endl;
     std::wcout << L"Press any button to continue" << std::endl;
 
+    bool gameRunning = true;
+
     _getch();
-    SnakeGame();
+    SnakeGame(gameRunning);
 
     return 0;
 }
