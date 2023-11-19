@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <cwchar>
 #include <io.h>
 #include <fcntl.h>
 #include <windows.h>

@@ -59,6 +59,7 @@ void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,bool& gameRun
 
     if (!gameRunning) {
         std::wcout << L"Press any button to continue" << std::endl;
+        Sleep(500);
         _getch();
     }
 }
