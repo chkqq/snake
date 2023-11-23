@@ -7,8 +7,8 @@
 class Apple
 { 
 public:
-	void Generate(Apple& apple, const Field& field);
-	void UpdateState(Apple& apple, Field& field);
+	void Generate(const Field& field);
+	void UpdateState(Field& field);
 
 	int x;
 	int y;

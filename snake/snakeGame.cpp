@@ -17,13 +17,13 @@ void SnakeGame(bool& gameRunning) {
         Snake snake;
         Apple apple;
 
-        field.Generate(field);
-        snake.Generate(snake, field);
-        apple.Generate(apple, field);
+        field.Generate();
+        snake.Generate(field);
+        apple.Generate(field);
 
         int score = 0;
 
-        apple.UpdateState(apple, field);
+        apple.UpdateState(field);
         while (gameRunning) {
             if (_kbhit()) {
                 switch (_getch()) {
@@ -50,16 +50,16 @@ void SnakeGame(bool& gameRunning) {
                 }
             }
 
-            snake.UpdatePosition(snake, apple, score, gameRunning, field);
+            snake.UpdatePosition(apple, score, gameRunning, field);
 
 
-            field.UpdateState(field);
-            snake.UpdateState(snake, field);
-            apple.UpdateState(apple, field);
+            field.UpdateState();
+            snake.UpdateState(field);
+            apple.UpdateState(field);
 
             system("cls");
             if (gameRunning) {
-                field.DrawMap(field);
+                field.DrawMap();
                 std::wcout << L"Score: " << score << std::endl;
             }
             Sleep(COMPLEXITY);

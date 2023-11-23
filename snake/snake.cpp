@@ -7,13 +7,13 @@
 
 const wchar_t SNAKE_SYMBOL = L'█';
 
-void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,bool& gameRunning, const Field& field) {
-    if (snake.direction == STOP) {
-        snake.direction = RIGHT;
+void Snake:: UpdatePosition(Apple& apple, int& score,bool& gameRunning, const Field& field) {
+    if (direction == STOP) {
+        direction = RIGHT;
     }
 
-    std::pair<int, int> newHead = snake.body.front();
-    switch (snake.direction) {
+    std::pair<int, int> newHead = body.front();
+    switch (direction) {
     case LEFT:
         newHead.first--;
         break;
@@ -38,41 +38,41 @@ void Snake:: UpdatePosition(Snake& snake, Apple& apple, int& score,bool& gameRun
     }
 
     if (newHead.first == apple.x && newHead.second == apple.y) {
-        apple.Generate(apple, field);
+        apple.Generate(field);
         score++;
     }
     else {
-        for (auto it = snake.body.begin(); it != snake.body.end(); ++it) {
+        for (auto it = body.begin(); it != body.end(); ++it) {
             if (newHead.first == it->first && newHead.second == it->second) {
                 gameRunning = false;
             }
         }
 
-        snake.body.pop_back();
+        body.pop_back();
     }
 
     if (score == (FIELD_WIDTH - 2) * (FIELD_HEIGHT - 2)) {
         std::wcout << L"You Win!" << std::endl;
         gameRunning = false;
     }
-    snake.body.push_front(newHead);
+    body.push_front(newHead);
 
     if (!gameRunning) {
         std::wcout << L"Press any button to continue" << std::endl;
-        Sleep(500);
+        Sleep(1000);
         _getch();
     }
 }
 
-void Snake:: UpdateState(Snake& snake, Field& field) {
-    for (const auto& segment : snake.body) {
+void Snake:: UpdateState(Field& field) {
+    for (const auto& segment : body) {
         field.layout[segment.second][segment.first] = SNAKE_SYMBOL;
     }
 }
 
-void Snake:: Generate(Snake& snake, const Field& field) {
-    snake.direction = STOP;
-    snake.body.push_back({ FIELD_WIDTH / 2, FIELD_HEIGHT / 2 });
-    snake.body.push_back({ FIELD_WIDTH / 2 - 1, FIELD_HEIGHT / 2 });
+void Snake:: Generate(const Field& field) {
+    direction = STOP;
+    body.push_back({ FIELD_WIDTH / 2, FIELD_HEIGHT / 2 });
+    body.push_back({ FIELD_WIDTH / 2 - 1, FIELD_HEIGHT / 2 });
 
 }
