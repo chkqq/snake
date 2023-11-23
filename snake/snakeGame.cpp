@@ -1,97 +1,121 @@
 ﻿#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <io.h>
-#include <fcntl.h>
-#include <windows.h>
-#include <conio.h>
+#include <SFML/Graphics.hpp>
 #include "Field.h"
 #include "Snake.h"
 #include "Apple.h"
 
+const int CELL_SIZE = 30;  // Размер ячейки поля
 const int COMPLEXITY = 100;
 
 void SnakeGame(bool& gameRunning) {
-    while (true) {
-        Field field;
-        Snake snake;
-        Apple apple;
+    sf::RenderWindow window(sf::VideoMode(FIELD_WIDTH * CELL_SIZE, FIELD_HEIGHT * CELL_SIZE), "Snake Game");
+    window.setFramerateLimit(60);  // Ограничиваем количество кадров в секунду
 
-        field.Generate();
-        snake.Generate(field);
-        apple.Generate(field);
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) {  // Замените "arial.ttf" на путь к вашему шрифту
+        std::cerr << "Failed to load font." << std::endl;
+        return;
+    }
 
-        int score = 0;
+    sf::Text scoreText;
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(20);
+    scoreText.setPosition(10.0f, 10.0f);
 
-        apple.UpdateState(field);
-        while (gameRunning) {
-            if (_kbhit()) {
-                switch (_getch()) {
-                case 'a':
+    Field field;
+    Snake snake;
+    Apple apple;
+
+    field.Generate();
+    snake.Generate(field);
+    apple.Generate(field);
+
+    int score = 0;
+
+    while (window.isOpen() && gameRunning) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            } else if (event.type == sf::Event::KeyPressed) {
+                switch (event.key.code) {
+                case sf::Keyboard::A:
                     if (snake.direction != RIGHT)
                         snake.direction = LEFT;
                     break;
-                case 'd':
+                case sf::Keyboard::D:
                     if (snake.direction != LEFT)
                         snake.direction = RIGHT;
                     break;
-                case 'w':
+                case sf::Keyboard::W:
                     if (snake.direction != DOWN)
                         snake.direction = UP;
                     break;
-                case 's':
+                case sf::Keyboard::S:
                     if (snake.direction != UP)
                         snake.direction = DOWN;
                     break;
-                case 'x':
-                    return;
-                case 'r':
+                case sf::Keyboard::X:
+                    gameRunning = false;
+                    break;
+                case sf::Keyboard::R:
                     SnakeGame(gameRunning);
+                    break;
                 }
             }
-
-            snake.UpdatePosition(apple, score, gameRunning, field);
-
-
-            field.UpdateState();
-            snake.UpdateState(field);
-            apple.UpdateState(field);
-
-            system("cls");
-            if (gameRunning) {
-                field.DrawMap();
-                std::wcout << L"Score: " << score << std::endl;
-            }
-            Sleep(COMPLEXITY);
         }
-        std::wcout << L"Press 'x' to exit, 'r' to restart: ";
+
+        snake.UpdatePosition(apple, score, gameRunning, field);
+        field.UpdateState();
+        snake.UpdateState(field);
+        apple.UpdateState(field);
+
+        window.clear();
+
+        // Отрисовка поля
+        for (int y = 0; y < FIELD_HEIGHT; ++y) {
+            for (int x = 0; x < FIELD_WIDTH; ++x) {
+                sf::RectangleShape cell(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+                cell.setPosition(x * CELL_SIZE, y * CELL_SIZE);
+                window.draw(cell);
+            }
+        }
+
+        // Отрисовка змейки
+        for (const auto& segment : snake.GetBody()) {
+            sf::RectangleShape snakeSegment(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+            snakeSegment.setPosition(segment.first * CELL_SIZE, segment.second * CELL_SIZE);
+            window.draw(snakeSegment);
+        }
+
+        // Отрисовка яблока
+        sf::RectangleShape appleShape(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+        appleShape.setPosition(apple.GetX() * CELL_SIZE, apple.GetY() * CELL_SIZE);
+        window.draw(appleShape);
+
+        // Отрисовка счета
+        scoreText.setString("Score: " + std::to_string(score));
+        window.draw(scoreText);
+
+        window.display();
+        sf::sleep(sf::milliseconds(COMPLEXITY));
+    }
+
+    if (!gameRunning) {
+        std::cout << "Press 'x' to exit, 'r' to restart: ";
         while (true) {
-            if (_kbhit()) {
-                switch (_getch()) {
-                case 'x':
-                    return;
-                case 'r':
-                    gameRunning = true;
-                    SnakeGame(gameRunning);
-                    return;
-                }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
+                return;
+            } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+                gameRunning = true;
+                SnakeGame(gameRunning);
+                return;
             }
         }
     }
 }
 
 int main() {
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
-
-    std::wcout << L"Snake controls: 'w', 'a', 's', 'd'" << std::endl;
-    std::wcout << L"Press 'x' for exit, press 'r' for restart" << std::endl;
-    std::wcout << L"Press any button to continue" << std::endl;
-
-    bool gameRunning = true;
-
-    _getch();
-    SnakeGame(gameRunning);
-
+    SnakeGame(true);
     return 0;
 }
