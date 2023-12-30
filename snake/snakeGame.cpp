@@ -11,11 +11,56 @@
 
 const int COMPLEXITY = 100;
 
-void SnakeGame(bool& gameRunning) {
+void SnakeGame(bool& gameRunning);
+
+void GameControls(Snake& snake, bool& gameRunning) {
+    if (_kbhit()) {
+        switch (_getch()) {
+        case 'a':
+            if (snake.direction != RIGHT)
+                snake.direction = LEFT;
+            break;
+        case 'd':
+            if (snake.direction != LEFT)
+                snake.direction = RIGHT;
+            break;
+        case 'w':
+            if (snake.direction != DOWN)
+                snake.direction = UP;
+            break;
+        case 's':
+            if (snake.direction != UP)
+                snake.direction = DOWN;
+            break;
+        case 'x':
+            return;
+        case 'r':
+            SnakeGame(gameRunning);
+        }
+    }
+}
+
+void ReturnAndExitAfterGameEnd(bool& gameRunning) {
     while (true) {
-        Field field;
-        Snake snake;
-        Apple apple;
+        if (_kbhit()) {
+            switch (_getch()) {
+            case 'x':
+                return;
+            case 'r':
+                gameRunning = true;
+                SnakeGame(gameRunning);
+                return;
+            }
+        }
+    }
+}
+
+void SnakeGame(bool& gameRunning) {
+    Field field;
+    Snake snake;
+    Apple apple;
+
+    while (true) {
 
         field.Generate();
         snake.Generate(field);
@@ -25,33 +70,9 @@ void SnakeGame(bool& gameRunning) {
 
         apple.UpdateState(field);
         while (gameRunning) {
-            if (_kbhit()) {
-                switch (_getch()) {
-                case 'a':
-                    if (snake.direction != RIGHT)
-                        snake.direction = LEFT;
-                    break;
-                case 'd':
-                    if (snake.direction != LEFT)
-                        snake.direction = RIGHT;
-                    break;
-                case 'w':
-                    if (snake.direction != DOWN)
-                        snake.direction = UP;
-                    break;
-                case 's':
-                    if (snake.direction != UP)
-                        snake.direction = DOWN;
-                    break;
-                case 'x':
-                    return;
-                case 'r':
-                    SnakeGame(gameRunning);
-                }
-            }
+            GameControls(snake, gameRunning);
 
             snake.UpdatePosition(apple, score, gameRunning, field);
-
 
             field.UpdateState();
             snake.UpdateState(field);
@@ -65,18 +86,7 @@ void SnakeGame(bool& gameRunning) {
             Sleep(COMPLEXITY);
         }
         std::wcout << L"Press 'x' to exit, 'r' to restart: ";
-        while (true) {
-            if (_kbhit()) {
-                switch (_getch()) {
-                case 'x':
-                    return;
-                case 'r':
-                    gameRunning = true;
-                    SnakeGame(gameRunning);
-                    return;
-                }
-            }
-        }
+        ReturnAndExitAfterGameEnd(gameRunning);
     }
 }
 

@@ -21,6 +21,11 @@ public:
 
     std::deque<std::pair<int, int>> body;
     Direction direction;
+private:
+    void CheckCollision(const std::pair<int, int>& newHead, bool& gameRunning, const Field& field);
+    void CheckAppleCollision(const std::pair<int, int>& newHead, Apple& apple, const Field& field, int& score, bool& gameRunning);
+    void CheckWinCondition(int score, bool& gameRunning);
+    void HandleGameOver(bool& gameRunning);
 };
 
 #endif

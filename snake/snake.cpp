@@ -7,7 +7,7 @@
 
 const wchar_t SNAKE_SYMBOL = L'█';
 
-void Snake:: UpdatePosition(Apple& apple, int& score,bool& gameRunning, const Field& field) {
+void Snake:: UpdatePosition(Apple& apple, int& score, bool& gameRunning, const Field& field) {
     if (direction == STOP) {
         direction = RIGHT;
     }
@@ -30,6 +30,16 @@ void Snake:: UpdatePosition(Apple& apple, int& score,bool& gameRunning, const Fi
         break;
     }
 
+    CheckCollision(newHead, gameRunning, field);
+    CheckAppleCollision(newHead, apple, field, score, gameRunning);
+    CheckWinCondition(score, gameRunning);
+
+    body.push_front(newHead);
+
+    HandleGameOver(gameRunning);
+}
+
+void Snake:: CheckCollision(const std::pair<int, int>& newHead, bool& gameRunning, const Field& field) {
     if (newHead.first == 0 || newHead.first == FIELD_WIDTH - 1 ||
         newHead.second == 0 || newHead.second == FIELD_HEIGHT - 1 ||
         field.layout[newHead.second][newHead.first] == SNAKE_SYMBOL) {
@@ -37,6 +47,9 @@ void Snake:: UpdatePosition(Apple& apple, int& score,bool& gameRunning, const Fi
         gameRunning = false;
     }
 
+}
+
+void Snake::CheckAppleCollision(const std::pair<int, int>& newHead, Apple& apple, const Field& field, int& score, bool& gameRunning) {
     if (newHead.first == apple.x && newHead.second == apple.y) {
         apple.Generate(field);
         score++;
@@ -50,13 +63,17 @@ void Snake:: UpdatePosition(Apple& apple, int& score,bool& gameRunning, const Fi
 
         body.pop_back();
     }
+}
 
+void Snake:: CheckWinCondition(int score, bool& gameRunning) {
     if (score == (FIELD_WIDTH - 2) * (FIELD_HEIGHT - 2)) {
         std::wcout << L"You Win!" << std::endl;
         gameRunning = false;
     }
-    body.push_front(newHead);
 
+}
+
+void Snake::  HandleGameOver(bool& gameRunning) {
     if (!gameRunning) {
         std::wcout << L"Press any button to continue" << std::endl;
         Sleep(1000);
@@ -64,6 +81,7 @@ void Snake:: UpdatePosition(Apple& apple, int& score,bool& gameRunning, const Fi
     }
 }
 
+ 
 void Snake:: UpdateState(Field& field) {
     for (const auto& segment : body) {
         field.layout[segment.second][segment.first] = SNAKE_SYMBOL;
