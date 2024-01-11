@@ -33,6 +33,7 @@ void GameControls(Snake& snake, bool& gameRunning) {
                 snake.direction = DOWN;
             break;
         case 'x':
+            std::exit(0);
             return;
         case 'r':
             SnakeGame(gameRunning);
@@ -45,6 +46,7 @@ void ReturnAndExitAfterGameEnd(bool& gameRunning) {
         if (_kbhit()) {
             switch (_getch()) {
             case 'x':
+                std::exit(0);
                 return;
             case 'r':
                 gameRunning = true;
@@ -60,13 +62,14 @@ void SnakeGame(bool& gameRunning) {
     Snake snake;
     Apple apple;
 
+    int score = 0;
+
     while (true) {
 
         field.Generate();
         snake.Generate(field);
         apple.Generate(field);
 
-        int score = 0;
 
         apple.UpdateState(field);
         while (gameRunning) {
